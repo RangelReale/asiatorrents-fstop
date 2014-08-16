@@ -32,7 +32,12 @@ func main() {
 	}
 
 	// consolidate data
-	err = imp.Consolidate(48)
+	err = imp.Consolidate("", 48)
+	if err != nil {
+		logger.Fatal(err)
+	}
+
+	err = imp.Consolidate("weekly", 168)
 	if err != nil {
 		logger.Fatal(err)
 	}
