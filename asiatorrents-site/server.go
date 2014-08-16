@@ -25,6 +25,19 @@ func RunServer(session *mgo.Session) {
 	// create logger
 	logger := log.New(os.Stderr, "", log.LstdFlags)
 
+	// manually load fonts from resource
+	for _, fontasset := range AssetNames() {
+		if strings.HasPrefix(fontasset, "res/fonts/") {
+			fontname := strings.TrimSuffix(path.Base(fontasset), path.Ext(fontasset))
+			fontbytes, err := Asset(fontasset)
+			if err != nil {
+				panic(err)
+			}
+			fontreader := bytes.NewReader(fontbytes)
+			vg.LoadFont(fontname, fontreader)
+		}
+	}
+
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		csession := session.Clone()
 		defer csession.Close()
