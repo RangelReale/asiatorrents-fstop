@@ -301,6 +301,6 @@ func RunServer(session *mgo.Session) {
 		//fmt.Fprintf(w, "RES %s\n", p)
 	})
 
-	http.ListenAndServe(":13111", nil)
+	http.ListenAndServe("localhost:13111", nil)
 
 }
