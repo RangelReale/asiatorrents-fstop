@@ -21,6 +21,7 @@ func main() {
 
 	// create and run importer
 	imp := fstopimp.NewImporter(logger, session)
+	imp.Database = "fstop_asiatorrents"
 
 	// create fetcher
 	fetcher := asiatorrents.NewFetcher()

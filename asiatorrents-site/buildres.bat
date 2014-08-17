@@ -1,6 +1,0 @@
-@echo off
-
-rem go-bindata -debug -pkg main -o res.go res/...
-go-bindata -pkg main -o res.go res/...
-
-pause
