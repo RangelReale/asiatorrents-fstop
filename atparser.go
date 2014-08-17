@@ -27,22 +27,6 @@ const (
 	ATSORTBY_DESCENDING ATSortBy = 2
 )
 
-type ATParserItem struct {
-	Id          string
-	Title       string
-	Link        string
-	Category    int32
-	AddDate     string
-	Count       int32
-	Seeders     int32
-	SeedersPos  int32
-	Leechers    int32
-	LeechersPos int32
-	Complete    int32
-	CompletePos int32
-	Comments    int32
-}
-
 type ATParser struct {
 	List   map[string]*fstoplib.Item
 	logger *log.Logger
