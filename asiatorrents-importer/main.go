@@ -1,6 +1,8 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"github.com/RangelReale/asiatorrents-fstop"
 	"github.com/RangelReale/filesharetop/importer"
 	"gopkg.in/mgo.v2"
@@ -8,7 +10,17 @@ import (
 	"os"
 )
 
+var version = flag.Bool("version", false, "show version and exit")
+
 func main() {
+	flag.Parse()
+
+	// output version
+	if *version {
+		fmt.Printf("asiatorrents-importer version %s\n", fstopimp.VERSION)
+		os.Exit(0)
+	}
+
 	// connect to mongodb
 	session, err := mgo.Dial("localhost")
 	if err != nil {

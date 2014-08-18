@@ -1,13 +1,25 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"github.com/RangelReale/filesharetop/site"
 	"gopkg.in/mgo.v2"
 	"log"
 	"os"
 )
 
+var version = flag.Bool("version", false, "show version and exit")
+
 func main() {
+	flag.Parse()
+
+	// output version
+	if *version {
+		fmt.Printf("asiatorrents-site version %s\n", fstopsite.VERSION)
+		os.Exit(0)
+	}
+
 	// connect to mongodb
 	session, err := mgo.Dial("localhost")
 	if err != nil {
