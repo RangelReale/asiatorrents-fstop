@@ -8,11 +8,13 @@ import (
 
 type Fetcher struct {
 	logger *log.Logger
+	config *Config
 }
 
-func NewFetcher() *Fetcher {
+func NewFetcher(config *Config) *Fetcher {
 	return &Fetcher{
 		logger: log.New(ioutil.Discard, "", 0),
+		config: config,
 	}
 }
 
@@ -25,7 +27,7 @@ func (f *Fetcher) SetLogger(l *log.Logger) {
 }
 
 func (f *Fetcher) Fetch() (map[string]*fstoplib.Item, error) {
-	parser := NewATParser(f.logger)
+	parser := NewATParser(f.config, f.logger)
 
 	// parse 4 pages ordered by seeders
 	err := parser.Parse(ATSORT_SEEDERS, ATSORTBY_DESCENDING, 4)

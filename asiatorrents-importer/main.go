@@ -11,6 +11,7 @@ import (
 )
 
 var version = flag.Bool("version", false, "show version and exit")
+var configfile = flag.String("configfile", "", "configuration file path")
 
 func main() {
 	flag.Parse()
@@ -21,6 +22,21 @@ func main() {
 		os.Exit(0)
 	}
 
+	// create logger
+	logger := log.New(os.Stderr, "", log.LstdFlags)
+
+	// load configuration file
+	config := asiatorrents.NewConfig()
+
+	if *configfile != "" {
+		logger.Printf("Loading configuration file %s", *configfile)
+
+		err := config.Load(*configfile)
+		if err != nil {
+			logger.Fatal(err)
+		}
+	}
+
 	// connect to mongodb
 	session, err := mgo.Dial("localhost")
 	if err != nil {
@@ -28,15 +44,12 @@ func main() {
 	}
 	defer session.Close()
 
-	// create logger
-	logger := log.New(os.Stderr, "", log.LstdFlags)
-
 	// create and run importer
 	imp := fstopimp.NewImporter(logger, session)
 	imp.Database = "fstop_asiatorrents"
 
 	// create fetcher
-	fetcher := asiatorrents.NewFetcher()
+	fetcher := asiatorrents.NewFetcher(config)
 
 	// import data
 	err = imp.Import(fetcher)

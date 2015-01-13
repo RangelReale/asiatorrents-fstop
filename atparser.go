@@ -6,6 +6,8 @@ import (
 	gq "github.com/PuerkitoBio/goquery"
 	"github.com/RangelReale/filesharetop/lib"
 	"log"
+	"net/http"
+	"net/http/cookiejar"
 	"net/url"
 	"strconv"
 	"strings"
@@ -29,12 +31,14 @@ const (
 
 type ATParser struct {
 	List   map[string]*fstoplib.Item
+	config *Config
 	logger *log.Logger
 }
 
-func NewATParser(l *log.Logger) *ATParser {
+func NewATParser(config *Config, l *log.Logger) *ATParser {
 	return &ATParser{
 		List:   make(map[string]*fstoplib.Item),
+		config: config,
 		logger: l,
 	}
 }
@@ -50,8 +54,37 @@ func (p *ATParser) Parse(sort ATSort, sortby ATSortBy, pages int) error {
 		var doc *gq.Document
 		var e error
 
+		// download the page
+		u, e := url.Parse(fmt.Sprintf("http://www.asiatorrents.me/index.php?page=torrents&active=0&discount=0&order=%d&by=%d&pages=%d", sort, sortby, pg))
+		if e != nil {
+			return e
+		}
+
+		cookies, _ := cookiejar.New(nil)
+		cookies.SetCookies(u, []*http.Cookie{
+			&http.Cookie{Name: "PHPSESSID", Value: p.config.PHPSESSID, Path: "/", Domain: "www.asiatorrents.me"},
+			&http.Cookie{Name: "lastseen", Value: p.config.Lastseen, Path: "/", Domain: "www.asiatorrents.me"},
+			&http.Cookie{Name: "atvpnshown", Value: "YES", Path: "/", Domain: "www.asiatorrents.me"},
+			&http.Cookie{Name: "pass", Value: p.config.Pass, Path: "/", Domain: "www.asiatorrents.me"},
+			&http.Cookie{Name: "uid", Value: p.config.Uid, Path: "/", Domain: "www.asiatorrents.me"},
+		})
+
+		client := &http.Client{
+			Jar: cookies,
+		}
+
+		req, e := http.NewRequest("GET", u.String(), nil)
+		if e != nil {
+			return e
+		}
+
+		resp, e := client.Do(req)
+		if e != nil {
+			return e
+		}
+
 		// parse the page
-		if doc, e = gq.NewDocument(fmt.Sprintf("http://www.asiatorrents.me/index.php?page=torrents&active=0&discount=0&order=%d&by=%d&pages=%d", sort, sortby, pg)); e != nil {
+		if doc, e = gq.NewDocumentFromResponse(resp); e != nil {
 			return e
 		}
 
